@@ -1,0 +1,345 @@
+@import url('https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@100..900&family=Playfair+Display+SC:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+
+body {
+    background: url(/Assets/images/) rgba(0, 0, 0, 0.3);
+    background-blend-mode: multiply;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 100vh; 
+    overflow-y: auto; 
+    margin: 0; 
+    padding: 0; 
+}
+
+/* Navbar and Dropdown Styling */
+.navbar {
+    background-color: #f1e8d9;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.nav-link-black {
+    color: #1e1e1e !important;
+}
+
+.nav-link-black:hover {
+    color: #e044a5;
+}
+
+/* Account Dropdown Styling */
+.navbar .dropdown-menu {
+    border-radius: 8px;
+    padding: 0;
+    min-width: 150px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Account Dropdown Styling */
+.navbar .dropdown-menu {
+    border-radius: 11px; 
+    padding: 0;
+    min-width: 150px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    overflow: hidden; 
+}
+
+/* Dropdown Item Styling */
+.navbar .dropdown-item {
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #1e1e1e;
+    transition: background-color 0.3s;
+}
+
+/* Hover Effect with Matching Border Radius */
+.navbar .dropdown-item:hover {
+    background-color: #f1e8d9;
+    border-radius: 0;
+}
+
+/* Logout Text */
+.dropdown-item.text-danger {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Dropdown Divider */
+.dropdown-divider {
+    margin: 0;
+}
+
+.search-bar .input-group {
+  border-radius: 20px; 
+  overflow: hidden; 
+}
+
+.search-bar .input-group-text {
+  background-color: #f1e8d9;
+  border: 1px solid #d9b65d;
+  border-radius: 20px 0 0 20px; 
+}
+
+.search-bar .form-control {
+  border: 1px solid #d9b65d;
+  border-radius: 0 20px 20px 0; 
+}
+
+
+h1{
+    font-family: "Playfair Display SC", serif;
+    font-size: 50px;
+    color: #1e1e1e;
+}
+
+.dropdown-item:hover {
+    background-color: #f1e8d9;
+}
+
+.dropdown-item.text-danger {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.dropdown-divider {
+    margin: 0;
+}
+
+
+/* Cards */
+.card {
+    background-color: #faf4e1;
+    border: 1px solid #d1b88a;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    background-color: #f1e8d9;
+    padding: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* List Group Item Styling */
+.list-group-item {
+    color: #1e1e1e;
+    background-color: #f1e8d9;
+    border: 2px solid #d9b65d;
+    border-radius: 8px;
+    font-size: 14px;
+    padding: 8px 16px;
+    margin-bottom: 8px; 
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    z-index: 2; 
+}
+
+/* List Group Item Hover */
+.list-group-item:hover {
+    background-color: #e2d1b3;
+    color: #1e1e1e;
+    cursor: pointer;
+    border-color: #d9b65d;
+}
+
+
+.list-group-item.active {
+    background-color: #e2d1b3;
+    color: #1e1e1e;
+    border-color: #d9b65d;
+}
+
+
+.list-group-item:not(.active):active {
+    background-color: #f1e8d9 !important; 
+    color: #1e1e1e;
+    border-color: #d9b65d;
+}
+
+.list-group-item:focus, .list-group-item:active {
+    outline: none; 
+    box-shadow: none; 
+}
+
+.list-group-item:not(.active):focus {
+    background-color: #f1e8d9;  
+    color: #1e1e1e;
+    border-color: #d9b65d;
+}
+
+/* Handle active item focus */
+.list-group-item.active:focus {
+    background-color: #e2d1b3;
+    color: #1e1e1e;
+    border-color: #d9b65d;
+}
+
+.list-group-item:active {
+    background-color: #e2d1b3;
+    color: #1e1e1e;
+    border-color: #d9b65d;
+}
+
+
+
+
+
+
+    
+/* Media Query for Sidebar Responsiveness */
+@media (max-width: 768px) {
+    .sidebar {
+        padding: 1rem;
+    }
+
+    .sidebar h5 {
+        font-size: 1.1em;
+    }
+
+    .list-group-item {
+        font-size: 13px;
+    }
+}
+
+.col-10.p-4 {
+    flex: 1;
+    padding: 20px;
+    background-color: #FFF8DC;
+}
+
+.col-10 p-4 h1 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #4b4b4b;
+}
+
+.add-new {
+    background-color: #ffecd0;
+    
+}
+
+.product-search{
+  display: flex;
+justify-content: flex-end; 
+gap: 10px; 
+margin-bottom: 20px;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.product-table th, .product-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.product-table th {
+    background-color: #fdf6e0;
+}
+
+.product-table tbody tr:nth-child(odd) {
+    background-color: #f0e2c4;
+}
+
+.product-table tbody tr:nth-child(even) {
+    background-color: #fdf6e0;
+}
+
+.container_addproduct{
+    width: 600px;
+    background-color: #fdf2d9;
+    padding: 20px;
+    align-items: center; 
+    justify-content: center; 
+    border-radius: 10px;
+    max-width: 800px;margin: auto;
+  }
+  
+  .color-boxes d-flex gap-3 {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    font-family: "Playfair Display SC", serif;
+    font-size: 50px;
+    color: #1e1e1e;
+  }
+  
+  .section {
+    background-color: #fef8e6;
+    
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+/* 
+  .buttons d-flex gap-3 {
+    background-color: #d9b65d;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background-color: #c49b50;
+}
+
+button:active {
+    background-color: #b08847;
+}  
+*/
+button {
+    background-color: #d9b65d;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #c49b50;
+}
+
+button:active {
+    background-color: #b08847;
+}
+
+/* Center align the buttons within the container */
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.buttons .btn {
+    width: auto;
+}
+
+/* Lower-right align */
+.buttons .btn-outline-secondary,
+.buttons .btn-primary {
+    margin-left: 10px; /* Optional: add a small gap between the Save and Add buttons */
+}
+
+  
