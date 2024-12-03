@@ -4,63 +4,59 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Retrieve data from form inputs
     $product_name = $_POST['product_name'];
     $category = $_POST['category'];
     $price = $_POST['price'];
     $quantity = $_POST['quantity'];
-    $colors = isset($_POST['colors']) ? $_POST['colors'] : []; // Check if colors are selected
+    $colors = isset($_POST['colors']) ? $_POST['colors'] : [];
 
-    // Handle file uploads (if needed)
-    if (isset($_FILES['images']) && count($_FILES['images']['name']) > 0) {
-        $upload_dir = "uploads/";
-        foreach ($_FILES['images']['name'] as $key => $filename) {
-            $tmp_name = $_FILES['images']['tmp_name'][$key];
-            $file_path = $upload_dir . basename($filename);
-            move_uploaded_file($tmp_name, $file_path);
-        }
-    }
-
-    // Begin a transaction
     $conn->begin_transaction();
-
     try {
-        // Step 1: Insert the product into the `product` table
-        $sql_product = "INSERT INTO products (product_name, category, price, quantity) 
-                        VALUES (?, ?, ?, ?)";
-        $stmt_product = $conn->prepare($sql_product);
-        $stmt_product->bind_param("ssdi", $product_name, $category, $price, $quantity);
-        $stmt_product->execute();
-
-        // Get the ID of the newly inserted product
+        // Insert the new product
+        $stmt = $conn->prepare("INSERT INTO products (product_name, category, price, quantity) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssdi", $product_name, $category, $price, $quantity);
+        $stmt->execute();
         $product_id = $conn->insert_id;
 
-        // Step 2: Insert the selected colors into the `product_colors` table
-        $sql_colors = "INSERT INTO product_colors (product_id, color_name) VALUES (?, ?)";
-        $stmt_colors = $conn->prepare($sql_colors);
-
+        // Insert colors
+        $stmt_colors = $conn->prepare("INSERT INTO product_colors (product_id, color_name) VALUES (?, ?)");
         foreach ($colors as $color) {
             $stmt_colors->bind_param("is", $product_id, $color);
             $stmt_colors->execute();
         }
 
-        // Commit the transaction
         $conn->commit();
 
-        echo "Product added successfully.";
-        header("Location: product_list.php");
-        exit;
+        // Redirect to product_list.php with success message
+        header("Location: product_list.php?success=true&product_id=$product_id");
+        exit; // Prevent further execution
     } catch (Exception $e) {
-        // Rollback the transaction on error
         $conn->rollback();
-        echo "Error: " . $e->getMessage();
+        error_log($e->getMessage());
+        echo "Error adding product. Please try again.";
     }
 }
-?>
+/*
+if (isset($_POST['add_product'])) {
+    $productName = $_POST['product_name'];
+    $category = $_POST['category'];
+    $price = $_POST['price'];
+    $quantity = $_POST['quantity'];
 
+    $stmt = $conn->prepare("INSERT INTO products (product_name, category, price, quantity) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssdi", $productName, $category, $price, $quantity);
+
+    if ($stmt->execute()) {
+        $productId = $stmt->insert_id; // Get the ID of the newly added product
+        header("Location: add_product.php?product_id=$productId");
+        exit();
+    } else {
+        echo "Error adding product: " . $conn->error;
+    }
+}*/
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -206,6 +202,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           enctype="multipart/form-data"
           class="mt-4"
           >
+        
+    <!-- Hidden input for product_id (for editing existing products) -->
+    <input type="hidden" name="product_id" value="<?php echo $_POST['product_id'] ?? ''; ?>">
+
 
           <!-- Product Information Section -->
           <div class="section">
@@ -264,11 +264,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             placeholder="Enter quantity"
             required
             />
-
+        <!--    <button 
+    type="button" 
+    class="btn btn-info me-2" 
+    onclick="window.location.href='product_images.php?product_id=<?php echo isset($_GET['product_id']) ? $_GET['product_id'] : (isset($_POST['product_id']) ? $_POST['product_id'] : ''); ?>'">
+    Manage Images
+</button> -->
             <div>
           </div>
 
           
+          <div class="mt-4 d-flex justify-content-between">
+    <!-- Back Button 
+   <a href="product_list.php" class="btn btn-secondary">Back</a>-->
+    <button type="button" class="btn btn-secondary" onclick="window.location.href='product_list.php'">Back</button>
+    <!-- Buttons to Add and Save Product -->
+    <div>
+
+   
+
+      <!-- Save Product Button 
+      <button
+        type="submit"
+        name="save_product"
+        class="btn btn-warning me-2"
+        formaction="save_product.php"
+      >
+        Save Product
+      </button>-->
+
+      <!-- Add Product Button -->
+      <button type="submit" name="add_product" class="btn btn-primary">
+        Add Product
+      </button>
+    </div>
+  </div>
+</form>
+
           <div class="section">
             <!-- Images and Additional Details Section 
             <label>Upload Images</label>
@@ -295,7 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div> -->
 
             
-            <div class="container">
+           <!--   <div class="container">
               <label class="form-label"><strong>SELECT COLORS</strong></label>
               <div id="color-options" class="d-flex flex-column">
                       <label class="d-flex align-items-center justify-content-between mb-2">
@@ -410,12 +442,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       </div>
                       </div>
 
-<!-- -->
+
                       <div id="custom-colors-section" class="mt-3">
               <label class="form-label"><strong>CUSTOM COLORS</strong></label>
-              <!-- Placeholder for new colors -->
+              <X!-- Placeholder for new colors --.>
               <div id="new-colors-container"></div>
-              <!-- Add New Color Button -->
+              <.!-- Add New Color Button --.>
               <button type="button" class="btn btn-outline-primary mt-2" onclick="addNewColor()">Add New Color</button>
           </div>
 
@@ -543,40 +575,56 @@ function removeColor(index) {
       }
 
 
-
-function addPreview(colorName, imageSrc) {
-  // Check if a preview for this color already exists
-  let existingPreview = document.querySelector(`#preview-images .preview-${colorName.replace(/\s+/g, '-')}`);
-  if (existingPreview) {
-    existingPreview.querySelector("img").src = imageSrc;
-  } else {
-    // Create a new preview
+      function addPreview(colorName, imageSrc) {
+  // Ensure colorName is safe for CSS class (e.g., replace spaces with dashes)
+  const sanitizedColorName = colorName.replace(/\s+/g, "-").toLowerCase();
+  let existingPreview = document.querySelector(`#preview-images .preview-${sanitizedColorName}`);
+  
+  if (!existingPreview) {
+    // Create a new preview container for the color
     const previewContainer = document.getElementById("preview-images");
-    const previewDiv = document.createElement("div");
-    previewDiv.className = `preview-${colorName.replace(/\s+/g, '-')} text-center`;
-    previewDiv.style.width = "150px";
+    const newPreview = document.createElement("div");
+    newPreview.className = `preview-${sanitizedColorName} d-flex flex-column align-items-center`;
+    newPreview.style.width = "120px";
 
-    previewDiv.innerHTML = `
-      <h6>${colorName}</h6>
-      <img src="${imageSrc}" alt="${colorName}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;" />
+    newPreview.innerHTML = `
+      <img src="${imageSrc}" alt="${colorName}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+      <small>${colorName}</small>
     `;
 
-    previewContainer.appendChild(previewDiv);
+    previewContainer.appendChild(newPreview);
+  } else {
+    // Update existing preview
+    const imgElement = existingPreview.querySelector("img");
+    imgElement.src = imageSrc;
   }
 }
 
-
-          function updatePreviewName(inputElement, newName) {
-    const oldName = inputElement.getAttribute("data-previous-name") || `Color ${colorIndex}`;
-    const previewElement = document.querySelector(`#preview-images .preview-${CSS.escape(oldName)}`);
-
-    if (previewElement) {
-        previewElement.querySelector("h6").textContent = newName;
-        previewElement.classList.replace(`preview-${CSS.escape(oldName)}`, `preview-${CSS.escape(newName)}`);
-    }
-
-    inputElement.setAttribute("data-previous-name", newName);
+function removePreview(colorName) {
+  const sanitizedColorName = colorName.replace(/\s+/g, "-").toLowerCase();
+  const existingPreview = document.querySelector(`#preview-images .preview-${sanitizedColorName}`);
+  if (existingPreview) {
+    existingPreview.remove();
+  }
 }
+
+function updatePreviewName(inputElement, newName) {
+  const previewContainer = document.getElementById("preview-images");
+  const oldName = inputElement.getAttribute("data-old-name");
+  if (oldName && oldName !== newName) {
+    const oldPreview = previewContainer.querySelector(`.preview-${oldName.replace(/\s+/g, "-").toLowerCase()}`);
+    if (oldPreview) {
+      oldPreview.classList.remove(`preview-${oldName.replace(/\s+/g, "-").toLowerCase()}`);
+      oldPreview.classList.add(`preview-${newName.replace(/\s+/g, "-").toLowerCase()}`);
+      const label = oldPreview.querySelector("small");
+      if (label) {
+        label.textContent = newName;
+      }
+    }
+  }
+  inputElement.setAttribute("data-old-name", newName);
+}
+
 
 
 
@@ -592,13 +640,60 @@ document.addEventListener("DOMContentLoaded", () => { // Attach change event lis
   document.querySelectorAll("input[type='file']").forEach(input => { input.addEventListener("change", handleFileChange); }); });
         </script>
 
-          <div class="buttons d-flex justify-content-between gap-3">
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='product_list.php'">Back</button>
-            <div>
-              <button type="submit" class="btn btn-outline-secondary">Save Product</button>
-              <button type="submit" class="btn btn-primary">ADD PRODUCT</button>
-            </div>
-          </div>          
+
+<div class="buttons d-flex justify-content-between gap-3">
+    <button type="button" class="btn btn-secondary" onclick="window.location.href='product_list.php'">Back</button>
+    <div>
+        <button type="submit" name="action" value="save" class="btn btn-outline-secondary">Save Product</button>
+        <button type="submit" name="action" value="add" class="btn btn-primary">Add Product</button>
+    </div>
+</div>
+
+<script>document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form');
+    const requiredFields = form.querySelectorAll('[required]');
+
+    form.addEventListener('submit', function (e) {
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('is-invalid');
+                field.addEventListener('input', function () {
+                    this.classList.remove('is-invalid');
+                });
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields.');
+        }
+    });
+});
+
+
+
+        // Check if at least one color is selected
+       // const colorCheckboxes = form.querySelectorAll('input[name="colors[]"]:checked');
+      //  if (colorCheckboxes.length === 0) {
+        //    isValid = false;
+        //    alert('Please select at least one color');
+       /// }
+
+       // return isValid;
+   // }
+
+</script>
+
+<style>
+.is-invalid {
+    border-color: red;
+}
+</style>
+              -->
+          </div>
           </div>
         </div>
 
