@@ -12,6 +12,22 @@ $sql = "SELECT product_id, product_name, price, quantity, status FROM products";
 
 $result = $conn->query($sql);
 
+if (isset($_GET['success']) && $_GET['success'] === 'true' && isset($_GET['action']) && $_GET['action'] === 'save' && isset($_GET['product_id'])) {
+    $highlightedProductId = intval($_GET['product_id']);
+    echo "
+    <script>
+        window.onload = function() {
+            alert('Product successfully updated!');
+            const productRow = document.getElementById('product-' + $highlightedProductId);
+            if (productRow) {
+                productRow.style.backgroundColor = '#ffeeba'; // Light yellow
+                productRow.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+    </script>
+    ";
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -220,6 +236,16 @@ h1{
     border-color: #d9b65d;
 }
 
+th {
+    text-align: center;
+    background-color: #d9b65d;
+    color: white;
+    padding: 10px;
+    border: 2px solid #e2d1b3;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+}
 
 
 
@@ -540,8 +566,9 @@ button:active {
               <h5 class="card-title">Available Products</h5>
               <table class="table table-bordered">
                 <thead>
-                  <tr>
-                    <th>PRODUCT</th>
+
+                <tr>
+                    <th>PRODUCT NAME</th>
                     <th>PRODUCT ID</th>
                     <th>PRICE</th>
                     <th>QUANTITY</th>
@@ -551,41 +578,44 @@ button:active {
                   </tr>
                 </thead>
                 <tbody>
-                <?php if ($result->num_rows > 0) {
-                   while ($row = $result->fetch_assoc()) {
-                     // Determine stock status based on quantity 
-                     if ($row['quantity'] > 10) {
-                       $status = 'In Stock'; 
-                       //$statusClass = 'in-stock'; 
-                       $badgeClass = 'bg-success';
+                <?php
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        // Determine stock status based on quantity
+        if ($row['quantity'] > 10) {
+            $status = 'In Stock';
+            $statusClass = 'in-stock';
+            $badgeClass = 'bg-success';
+        } elseif ($row['quantity'] > 0) {
+            $status = 'Limited Stock';
+            $statusClass = 'limited-stock';
+            $badgeClass = 'bg-warning';
+        } else {
+            $status = 'Out of Stock';
+            $statusClass = 'out-of-stock';
+            $badgeClass = 'bg-danger';
+        }
 
-                    } elseif ($row['quantity'] > 0) {
-                       $status = 'Limited Stock'; 
-                      // $statusClass = 'limited-stock'; 
-                       $badgeClass = 'bg-warning';
+        // Table row for product
+        echo "<tr class='{$statusClass}'>
+            <td>" . htmlspecialchars($row['product_name']) . "</td> 
+            <td>{$row['product_id']}</td> 
+            <td>₱" . number_format($row['price'], 2) . "</td> 
+            <td>{$row['quantity']}</td> 
+            <td>{$status}</td> 
+            <td>
+                <a href='edit_product.php?id={$row['product_id']}' class='btn btn-warning btn-sm'>Edit</a>
+                <a href='delete_product.php?id={$row['product_id']}' class='btn btn-danger btn-sm' 
+                onclick='return confirm(\"Are you sure you want to delete this product?\");'>Delete</a>
+                <a href='add_colors.php?id={$row['product_id']}' class='btn btn-primary btn-sm'>Add Colors</a>
+            </td>
+        </tr>";
+    }
+} else {
+    echo "<tr><td colspan='6' class='text-center'>No products found</td></tr>";
+}
+?>
 
-                    } else { 
-                      $status = 'Out of Stock'; 
-                   //   $statusClass = 'out-of-stock'; 
-                      $badgeClass = 'bg-danger';
-                  
-                  } echo "<tr class='{$statusClass}'>
-                         <td>" . htmlspecialchars($row['product_name']) . "</td> 
-                         <td>{$row['product_id']}</td> 
-                         <td>₱" . number_format($row['price'], 2) . "</td> 
-                         <td>{$row['quantity']}</td> <td>{$status}</td> 
-                         <td> 
-                            <a href='edit_product.php?id={$row['product_id']}' class='btn btn-warning btn-sm'>Edit</a>
-                            <a href='delete_product.php?id={$row['product_id']}' class='btn btn-danger btn-sm' 
-                            onclick='return confirm(\"Are you sure you want to delete this product?\");'>Delete</a> </td>
-                          
-                          </tr>"; } 
-                    } else {
-                       echo "<tr><td colspan='6' class='text-center'>No products found</td></tr>"; 
-                       } 
-                
-                ?>
-              
               </tbody>
 
               </table>
@@ -674,5 +704,6 @@ function filterStockStatus(status) {
   });
 }
 </script> 
+
   </body>
 </html>
